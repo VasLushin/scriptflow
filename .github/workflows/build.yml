@@ -1,0 +1,38 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.x'
+          channel: 'stable'
+      - name: Generate Project Files
+        run: |
+          mkdir -p lib/screens lib/services android/app/src/main
+          cat  pubspec.yaml
+          name: scriptflow
+          description: ScriptFlow AI Teleprompter
+          version: 1.0.0+1
+          environment:
+            sdk: '>=3.0.0 <4.0.0'
+          dependencies:
+            flutter:
+              sdk: flutter
+            flutter_overlay_window: ^0.4.5
+            http: ^1.2.0
+            shared_preferences: ^2.2.2
+          flutter:
+            uses-material-design: true
+          EOF
+          flutter create . --org com.scriptflow.app
+          flutter build apk --release
+      - uses: actions/upload-artifact@v3
+        with:
+          name: scriptflow-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
